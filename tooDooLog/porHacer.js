@@ -1,0 +1,94 @@
+const fs = require('fs');
+
+let listadoPorHacer = [];
+
+
+const guardarTarea = () =>{
+
+    let data = JSON.stringify(listadoPorHacer);
+
+
+
+    fs.writeFile('db/data.json', data, (err)=>{
+
+        if(err) 
+            console.log(err);
+        else    
+           console.log('Grabado correctamente');
+                            
+    });
+
+}
+
+const cargarDB = () =>{
+    try {
+        listadoPorHacer = require('../db/data.json');
+    } catch (error) {
+        listadoPorHacer = [];
+    }
+   
+
+}
+
+const crear = (descripcion) =>{
+
+    cargarDB();
+
+    let porHacer = {
+
+        descripcion,
+        completado: false
+    };
+
+    listadoPorHacer.push(porHacer);
+
+    guardarTarea();
+
+    return porHacer;
+
+}
+
+const getLista = () =>{
+
+    cargarDB();
+
+    return listadoPorHacer;
+
+}
+
+const actualizar = (descripcion, completado =  true) =>{
+    cargarDB();
+
+    let index = listadoPorHacer.findIndex(tarea => tarea.descripcion === descripcion);
+
+    if (index >= 0){
+        listadoPorHacer[index].completado = completado;
+        guardarTarea();
+        return true;
+    }else{
+        return false;
+    }
+}
+
+const borrar = (descripcion) =>{
+    cargarDB();
+
+    let nuevoListado = listadoPorHacer.filter(tarea => tarea.descripcion === descripcion);
+
+   if(listadoPorHacer.length === nuevoListado.length){
+       return false;
+   }else{
+       listadoPorHacer = nuevoListado;
+       guardarTarea();
+       return true;
+   }
+
+}
+
+module.exports = {
+    crear,
+    getLista,
+    actualizar,
+    borrar
+
+}
